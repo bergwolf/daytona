@@ -35,7 +35,7 @@ func main() {
 	mux := routes.New()
 	mux.Post("/:vol", tarUploader)
 	http.Handle("/", mux)
-	err = http.ListenAndServe(":1985", nil)
+	err = http.ListenAndServe(":80", nil)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "exited: %s\n", err.Error())
 	}
