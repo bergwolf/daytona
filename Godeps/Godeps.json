@@ -1,0 +1,16 @@
+{
+	"ImportPath": "github.com/bergwolf/daytona",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v74",
+	"Deps": [
+		{
+			"ImportPath": "github.com/drone/routes",
+			"Rev": "853bef2b231162bb7b09355720416d3af1510d88"
+		},
+		{
+			"ImportPath": "github.com/ivaxer/go-xattr",
+			"Comment": "v1.1.1-15-g1a54165",
+			"Rev": "1a541654d8e447148cf23d472c948f9f0078ac50"
+		}
+	]
+}
