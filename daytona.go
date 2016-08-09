@@ -4,6 +4,7 @@ import (
 	"archive/tar"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -38,6 +39,19 @@ func main() {
 	err = http.ListenAndServe(":80", nil)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "exited: %s\n", err.Error())
+	}
+}
+
+func handleSingleFileDir(destDir, volFilename string) {
+	files, err := ioutil.ReadDir(destDir)
+	if err != nil || len(files) != 1 {
+		return
+	}
+
+	for _, file := range files {
+		if file.Mode().IsRegular() && file.Name() != volFilename {
+			os.Rename(destDir+"/"+file.Name(), destDir+"/"+volFilename)
+		}
 	}
 }
 
@@ -96,6 +110,8 @@ func tarUploader(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	handleSingleFileDir(destDir, volFilename)
 
 	w.Write([]byte("success"))
 }
