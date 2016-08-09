@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/drone/routes"
 	xattr "github.com/ivaxer/go-xattr"
@@ -123,30 +124,38 @@ func saveTarFile(dir string, h *tar.Header, r io.Reader) (err error) {
 	switch {
 	case info.Mode()&os.ModeSymlink != 0:
 		if err = os.Symlink(h.Linkname, filePath); err != nil {
+			fmt.Printf("symlink failed with %s\n", err.Error())
 			return err
 		}
 	case info.Mode().IsDir():
 		if err = os.Mkdir(filePath, info.Mode().Perm()); err != nil {
-			return err
+			if !strings.Contains(err.Error(), "file exists") {
+				fmt.Printf("mkdir failed with %s\n", err.Error())
+				return err
+			}
 		}
 	case info.Mode().IsRegular():
 		fallthrough
 	default: // Treat special files as normal files
 		fw, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, info.Mode().Perm())
 		if err != nil {
+			fmt.Printf("open failed with %s\n", err.Error())
 			return err
 		}
 		if _, err = io.Copy(fw, r); err != nil {
+			fmt.Printf("copy failed with %s\n", err.Error())
 			return err
 		}
 	}
 
 	// ownership and xattrs
 	if err = os.Lchown(filePath, h.Uid, h.Gid); err != nil {
+		fmt.Printf("chown failed with %s\n", err.Error())
 		return err
 	}
 	for key, val := range h.Xattrs {
 		if err = xattr.Set(filePath, key, []byte(val)); err != nil {
+			fmt.Printf("setattr failed with %s\n", err.Error())
 			return err
 		}
 	}
