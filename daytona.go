@@ -107,6 +107,7 @@ func tarUploader(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		}
+		w.Write([]byte("."))
 		if err = saveTarFile(destDir, h, tarReader); err != nil {
 			return
 		}
@@ -114,7 +115,7 @@ func tarUploader(w http.ResponseWriter, r *http.Request) {
 
 	handleSingleFileDir(destDir, volFilename)
 
-	w.Write([]byte("success"))
+	w.Write([]byte("success\n"))
 }
 
 func saveTarFile(dir string, h *tar.Header, r io.Reader) (err error) {
