@@ -59,6 +59,7 @@ func handleSingleFileDir(destDir, volFilename string) {
 func tarUploader(w http.ResponseWriter, r *http.Request) {
 	var (
 		userCookie, vol string
+		dirVolume       bool
 		err             error
 	)
 
@@ -106,14 +107,20 @@ func tarUploader(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			return
+		} else if h.FileInfo().Name() == "." {
+			dirVolume = true
+			continue
 		}
+
 		w.Write([]byte("."))
 		if err = saveTarFile(destDir, h, tarReader); err != nil {
 			return
 		}
 	}
 
-	handleSingleFileDir(destDir, volFilename)
+	if !dirVolume {
+		handleSingleFileDir(destDir, volFilename)
+	}
 
 	w.Write([]byte("success\n"))
 }
