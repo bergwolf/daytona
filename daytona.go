@@ -107,6 +107,7 @@ func tarUploader(w http.ResponseWriter, r *http.Request) {
 		h, err = tarReader.Next()
 		if err != nil {
 			if err == io.EOF {
+				err = nil
 				break
 			}
 			return
