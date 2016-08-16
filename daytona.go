@@ -59,6 +59,7 @@ func handleSingleFileDir(destDir, volFilename string) {
 func tarUploader(w http.ResponseWriter, r *http.Request) {
 	var (
 		userCookie, vol string
+		h               *tar.Header
 		dirVolume       bool
 		err             error
 	)
@@ -67,6 +68,8 @@ func tarUploader(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			w.WriteHeader(http.StatusNotAcceptable)
 			w.Write([]byte(err.Error()))
+		} else {
+			w.Write([]byte("success\n"))
 		}
 	}()
 
@@ -101,7 +104,7 @@ func tarUploader(w http.ResponseWriter, r *http.Request) {
 
 	tarReader := tar.NewReader(r.Body)
 	for {
-		h, err := tarReader.Next()
+		h, err = tarReader.Next()
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -112,8 +115,8 @@ func tarUploader(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		w.Write([]byte("."))
 		if err = saveTarFile(destDir, h, tarReader); err != nil {
+			fmt.Println(err)
 			return
 		}
 	}
@@ -121,8 +124,6 @@ func tarUploader(w http.ResponseWriter, r *http.Request) {
 	if !dirVolume {
 		handleSingleFileDir(destDir, volFilename)
 	}
-
-	w.Write([]byte("success\n"))
 }
 
 func saveTarFile(dir string, h *tar.Header, r io.Reader) (err error) {
