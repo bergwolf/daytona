@@ -135,8 +135,10 @@ func saveTarFile(dir string, h *tar.Header, r io.Reader) (err error) {
 	switch {
 	case info.Mode()&os.ModeSymlink != 0:
 		if err = os.Symlink(h.Linkname, filePath); err != nil {
-			fmt.Printf("symlink failed with %s\n", err.Error())
-			return err
+			if !strings.Contains(err.Error(), "file exists") {
+				fmt.Printf("symlink failed with %s\n", err.Error())
+				return err
+			}
 		}
 	case info.Mode().IsDir():
 		if err = os.Mkdir(filePath, info.Mode().Perm()); err != nil {
