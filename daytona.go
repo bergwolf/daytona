@@ -110,6 +110,7 @@ func tarUploader(w http.ResponseWriter, r *http.Request) {
 				err = nil
 				break
 			}
+			fmt.Printf("invalid data: %s\n", err.Error())
 			return
 		} else if h.FileInfo().Name() == "." {
 			dirVolume = true
@@ -152,6 +153,7 @@ func saveTarFile(dir string, h *tar.Header, r io.Reader) (err error) {
 			fmt.Printf("open failed with %s\n", err.Error())
 			return err
 		}
+		defer fw.Close()
 		if _, err = io.Copy(fw, r); err != nil {
 			fmt.Printf("copy failed with %s\n", err.Error())
 			return err
